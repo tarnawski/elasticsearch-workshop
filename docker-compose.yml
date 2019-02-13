@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  php:
+    build: ./docker/php
+    links:
+    - elasticsearch
+    volumes:
+    - .:/var/www/html
+    working_dir: /var/www/html
+
+  nginx:
+    image: nginx:stable
+    ports:
+    - 80:80
+    links:
+    - php
+    volumes:
+    - .:/var/www/html
+    - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+  elasticsearch:
+    image: elasticsearch:6.5.0
+    ports:
+    - 9200:9200
+    environment:
+    - discovery.type=single-node
