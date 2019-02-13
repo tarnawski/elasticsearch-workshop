@@ -16,6 +16,7 @@ use App\Entity\Post;
 use App\Events;
 use App\Form\CommentType;
 use App\Repository\PostRepository;
+use App\Repository\ElasticSearch\PostRepository as ESPostRepository;
 use App\Repository\TagRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -148,7 +149,7 @@ class BlogController extends AbstractController
     /**
      * @Route("/search", methods={"GET"}, name="blog_search")
      */
-    public function search(Request $request, PostRepository $posts): Response
+    public function search(Request $request, ESPostRepository $posts): Response
     {
         if (!$request->isXmlHttpRequest()) {
             return $this->render('blog/search.html.twig');
@@ -161,11 +162,11 @@ class BlogController extends AbstractController
         $results = [];
         foreach ($foundPosts as $post) {
             $results[] = [
-                'title' => htmlspecialchars($post->getTitle(), ENT_COMPAT | ENT_HTML5),
-                'date' => $post->getPublishedAt()->format('M d, Y'),
-                'author' => htmlspecialchars($post->getAuthor()->getFullName(), ENT_COMPAT | ENT_HTML5),
-                'summary' => htmlspecialchars($post->getSummary(), ENT_COMPAT | ENT_HTML5),
-                'url' => $this->generateUrl('blog_post', ['slug' => $post->getSlug()]),
+                'title' => htmlspecialchars($post['title'], ENT_COMPAT | ENT_HTML5),
+                'date' => $post['date'],
+                'author' => htmlspecialchars($post['author'], ENT_COMPAT | ENT_HTML5),
+                'summary' => htmlspecialchars($post['summary'], ENT_COMPAT | ENT_HTML5),
+                'url' => $this->generateUrl('blog_post', ['slug' => $post['slug']]),
             ];
         }
 
